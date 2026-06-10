@@ -1,2 +1,4 @@
 course_id,course_name,number_of_students
-C001,Python Programming,1
+C001,Python Programming,3
+C002,OOP,0
+C003,Cooking,1
