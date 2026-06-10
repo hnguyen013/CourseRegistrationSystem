@@ -3,132 +3,228 @@ from tkinter import ttk, messagebox
 
 from models.lecturer import Lecturer
 from services.lecturer_service import LecturerService
+from views.style import COLORS, FONT_NORMAL, FONT_BOLD, apply_style, make_button
+
+# 1. IMPORT LỚP BASEVIEW TỪ FILE BASE_VIEW
+from views.base_view import BaseView
 
 
-class LecturerView(tk.Toplevel):
+# 2. SỬA ĐỂ LỚP LECTURERVIEW KẾ THỪA TỪ BASEVIEW
+class LecturerView(BaseView):
     def __init__(self):
-        super().__init__()
-        self.title("Lecturer Management")
-        self.geometry("750x500")
+        # 3. GỌI CONSTRUCTOR CỦA BASEVIEW VÀ TRUYỀN CÁC THAM SỐ GIAO DIỆN CHUẨN
+        # Tham số theo thứ tự: title, current_page, icon_text, subtitle
+        super().__init__(
+            title="Lecturer Management",
+            current_page="Lecturer",
+            icon_text="👨‍🏫",
+            subtitle="Manage lecturer information efficiently"
+        )
 
         self.lecturer_service = LecturerService()
 
+        # Khởi tạo phần giao diện đặc trưng và tải dữ liệu giảng viên
         self.create_widgets()
         self.load_lecturers()
 
     def create_widgets(self):
-        tk.Label(self, text="Lecturer Management", font=("Arial", 18, "bold")).pack(pady=10)
+        # KHÔNG tạo lại container, sidebar, và header nữa vì BaseView đã xử lý hoàn chỉnh.
+        # Ta gắn trực tiếp Form nhập và Bảng Treeview vào vùng chứa `self.content` của BaseView.
 
-        form = tk.Frame(self)
-        form.pack(pady=10)
+        # --- Khối nhập thông tin giảng viên (Form Card) ---
+        form_card = tk.LabelFrame(
+            self.content,  # Đổi sang self.content để kế thừa từ lớp cha
+            text="   👨‍🏫 Lecturer Information   ",
+            bg=COLORS["white"],
+            fg=COLORS["primary"],
+            font=("Arial", 13, "bold"),
+            padx=25,
+            pady=20
+        )
+        form_card.pack(fill="x", pady=(0, 16))
 
-        tk.Label(form, text="Lecturer ID").grid(row=0, column=0, padx=5, pady=5)
-        self.entry_id = tk.Entry(form)
-        self.entry_id.grid(row=0, column=1)
+        self.entry_id = self.create_input(form_card, "Lecturer ID", 0, 0, "Enter lecturer id")
+        self.entry_name = self.create_input(form_card, "Name", 0, 2, "Enter name")
+        self.entry_email = self.create_input(form_card, "Email", 0, 4, "Enter email")
+        self.entry_department = self.create_input(form_card, "Department", 0, 6, "Enter department")
 
-        tk.Label(form, text="Name").grid(row=1, column=0, padx=5, pady=5)
-        self.entry_name = tk.Entry(form)
-        self.entry_name.grid(row=1, column=1)
+        button_frame = tk.Frame(form_card, bg=COLORS["white"])
+        button_frame.grid(row=2, column=0, columnspan=8, sticky="ew", pady=(20, 0))
 
-        tk.Label(form, text="Email").grid(row=2, column=0, padx=5, pady=5)
-        self.entry_email = tk.Entry(form)
-        self.entry_email.grid(row=2, column=1)
+        make_button(button_frame, "+   Add", self.add_lecturer, COLORS["success"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "✎   Update", self.update_lecturer, COLORS["info"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "🗑   Delete", self.delete_lecturer, COLORS["danger"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "↻   Clear", self.clear_form, COLORS["gray"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
 
-        tk.Label(form, text="Department").grid(row=3, column=0, padx=5, pady=5)
-        self.entry_department = tk.Entry(form)
-        self.entry_department.grid(row=3, column=1)
-
-        btn = tk.Frame(self)
-        btn.pack(pady=10)
-
-        tk.Button(btn, text="Add", width=10, command=self.add_lecturer).grid(row=0, column=0, padx=5)
-        tk.Button(btn, text="Update", width=10, command=self.update_lecturer).grid(row=0, column=1, padx=5)
-        tk.Button(btn, text="Delete", width=10, command=self.delete_lecturer).grid(row=0, column=2, padx=5)
-        tk.Button(btn, text="Clear", width=10, command=self.clear_form).grid(row=0, column=3, padx=5)
+        # --- Khối hiển thị danh sách giảng viên (List Card) ---
+        list_card = tk.LabelFrame(
+            self.content,  # Đổi sang self.content để kế thừa từ lớp cha
+            text="   ▦ Lecturer List   ",
+            bg=COLORS["white"],
+            fg=COLORS["primary"],
+            font=("Arial", 13, "bold"),
+            padx=18,
+            pady=16
+        )
+        list_card.pack(fill="both", expand=True)
 
         self.tree = ttk.Treeview(
-            self,
+            list_card,
             columns=("lecturer_id", "name", "email", "department"),
             show="headings"
         )
 
-        for col in ("lecturer_id", "name", "email", "department"):
-            self.tree.heading(col, text=col)
+        self.tree.heading("lecturer_id", text="Lecturer ID")
+        self.tree.heading("name", text="Name")
+        self.tree.heading("email", text="Email")
+        self.tree.heading("department", text="Department")
 
-        self.tree.pack(fill="both", expand=True, padx=10, pady=10)
+        self.tree.column("lecturer_id", width=80, anchor="center")
+        self.tree.column("name", width=280)
+        self.tree.column("email", width=330)
+        self.tree.column("department", width=250)
+
+        self.tree.pack(fill="both", expand=True)
         self.tree.bind("<<TreeviewSelect>>", self.on_select)
+
+        # --- Nhãn hiển thị tổng số lượng giảng viên ---
+        self.lbl_total = tk.Label(
+            self.content,  # Đổi sang self.content để kế thừa từ lớp cha
+            text="👥   Total: 0 lecturers",
+            bg=COLORS["bg"],
+            fg=COLORS["primary"],
+            font=("Arial", 11, "bold")
+        )
+        self.lbl_total.pack(anchor="w", pady=10)
+
+    def create_input(self, parent, label, row, col, placeholder):
+        tk.Label(
+            parent,
+            text=label,
+            bg=COLORS["white"],
+            fg=COLORS["text"],
+            font=FONT_BOLD
+        ).grid(row=row, column=col, sticky="w", padx=(0, 8), pady=6)
+
+        entry = tk.Entry(
+            parent,
+            width=23,
+            font=FONT_NORMAL,
+            relief="solid",
+            bd=1,
+            fg=COLORS["muted"]
+        )
+        entry.grid(row=row + 1, column=col, columnspan=2, sticky="ew", padx=(0, 28), pady=6, ipady=7)
+        entry.insert(0, placeholder)
+
+        def on_focus_in(event):
+            if entry.get() == placeholder:
+                entry.delete(0, tk.END)
+                entry.config(fg=COLORS["text"])
+
+        def on_focus_out(event):
+            if entry.get() == "":
+                entry.insert(0, placeholder)
+                entry.config(fg=COLORS["muted"])
+
+        entry.bind("<FocusIn>", on_focus_in)
+        entry.bind("<FocusOut>", on_focus_out)
+
+        return entry
+
+    def get_value(self, entry, placeholder):
+        value = entry.get()
+        return "" if value == placeholder else value
 
     def load_lecturers(self):
         for row in self.tree.get_children():
             self.tree.delete(row)
 
-        for lecturer in self.lecturer_service.get_all_lecturers():
+        lecturers = self.lecturer_service.get_all_lecturers()
+
+        for lecturer in lecturers:
             self.tree.insert("", tk.END, values=lecturer)
 
-    def add_lecturer(self):
-        lecturer = Lecturer(
-            self.entry_id.get(),
-            self.entry_name.get(),
-            self.entry_email.get(),
-            self.entry_department.get()
-        )
+        self.lbl_total.config(text=f"👥   Total: {len(lecturers)} lecturers")
 
-        if lecturer.person_id == "" or lecturer.name == "":
+    def add_lecturer(self):
+        lecturer_id = self.get_value(self.entry_id, "Enter lecturer id")
+        name = self.get_value(self.entry_name, "Enter name")
+        email = self.get_value(self.entry_email, "Enter email")
+        department = self.get_value(self.entry_department, "Enter department")
+
+        if lecturer_id == "" or name == "":
             messagebox.showwarning("Warning", "Lecturer ID and Name are required!")
             return
 
+        lecturer = Lecturer(lecturer_id, name, email, department)
+
         if self.lecturer_service.add_lecturer(lecturer):
-            messagebox.showinfo("Success", "Lecturer added!")
-            self.load_lecturers()
+            messagebox.showinfo("Success", "Lecturer added successfully!")
             self.clear_form()
+            self.load_lecturers()
         else:
             messagebox.showerror("Error", "Cannot add lecturer!")
 
     def update_lecturer(self):
-        lecturer = Lecturer(
-            self.entry_id.get(),
-            self.entry_name.get(),
-            self.entry_email.get(),
-            self.entry_department.get()
-        )
-
-        self.lecturer_service.update_lecturer(lecturer)
-        messagebox.showinfo("Success", "Lecturer updated!")
-        self.load_lecturers()
-        self.clear_form()
-
-    def delete_lecturer(self):
-        lecturer_id = self.entry_id.get()
+        lecturer_id = self.get_value(self.entry_id, "Enter lecturer id")
+        name = self.get_value(self.entry_name, "Enter name")
+        email = self.get_value(self.entry_email, "Enter email")
+        department = self.get_value(self.entry_department, "Enter department")
 
         if lecturer_id == "":
-            messagebox.showwarning("Warning", "Please select lecturer!")
+            messagebox.showwarning("Warning", "Please select a lecturer!")
+            return
+
+        lecturer = Lecturer(lecturer_id, name, email, department)
+        self.lecturer_service.update_lecturer(lecturer)
+
+        messagebox.showinfo("Success", "Lecturer updated successfully!")
+        self.clear_form()
+        self.load_lecturers()
+
+    def delete_lecturer(self):
+        lecturer_id = self.get_value(self.entry_id, "Enter lecturer id")
+
+        if lecturer_id == "":
+            messagebox.showwarning("Warning", "Please select a lecturer!")
+            return
+
+        if not messagebox.askyesno("Confirm", "Are you sure you want to delete this lecturer?"):
             return
 
         self.lecturer_service.delete_lecturer(lecturer_id)
-        messagebox.showinfo("Success", "Lecturer deleted!")
-        self.load_lecturers()
+
+        messagebox.showinfo("Success", "Lecturer deleted successfully!")
         self.clear_form()
+        self.load_lecturers()
+
+    def clear_entry(self, entry, placeholder):
+        entry.delete(0, tk.END)
+        entry.insert(0, placeholder)
+        entry.config(fg=COLORS["muted"])
 
     def clear_form(self):
-        self.entry_id.delete(0, tk.END)
-        self.entry_name.delete(0, tk.END)
-        self.entry_email.delete(0, tk.END)
-        self.entry_department.delete(0, tk.END)
+        self.clear_entry(self.entry_id, "Enter lecturer id")
+        self.clear_entry(self.entry_name, "Enter name")
+        self.clear_entry(self.entry_email, "Enter email")
+        self.clear_entry(self.entry_department, "Enter department")
+        self.load_lecturers()
 
     def on_select(self, event):
-        selected = self.tree.selection()
+        selected_item = self.tree.selection()
 
-        if selected:
-            values = self.tree.item(selected[0], "values")
+        if selected_item:
+            values = self.tree.item(selected_item[0], "values")
 
-            self.entry_id.delete(0, tk.END)
-            self.entry_id.insert(0, values[0])
+            entries = [
+                (self.entry_id, values[0]),
+                (self.entry_name, values[1]),
+                (self.entry_email, values[2]),
+                (self.entry_department, values[3])
+            ]
 
-            self.entry_name.delete(0, tk.END)
-            self.entry_name.insert(0, values[1])
-
-            self.entry_email.delete(0, tk.END)
-            self.entry_email.insert(0, values[2])
-
-            self.entry_department.delete(0, tk.END)
-            self.entry_department.insert(0, values[3])
+            for entry, value in entries:
+                entry.delete(0, tk.END)
+                entry.insert(0, value)
+                entry.config(fg=COLORS["text"])
