@@ -55,6 +55,8 @@ class StudentView(BaseView):
         make_button(button_frame, "✎   Update", self.update_student, COLORS["info"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "🗑   Delete", self.delete_student, COLORS["danger"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "🔍   Search", self.search_student, COLORS["warning"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "↕   Sort ID", self.sort_by_id, COLORS["primary"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "A-Z Sort Name", self.sort_by_name, COLORS["primary"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "↻   Clear", self.clear_form, COLORS["gray"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
 
         # --- Khối danh sách hiển thị sinh viên (List Card) ---
@@ -241,3 +243,25 @@ class StudentView(BaseView):
                 entry.delete(0, tk.END)
                 entry.insert(0, value)
                 entry.config(fg=COLORS["text"])
+    def sort_by_id(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        students = self.student_service.sort_students("id")
+
+        for student in students:
+            self.tree.insert("", tk.END, values=student)
+
+        self.lbl_total.config(text=f"👥   Sorted by Student ID: {len(students)} students")
+
+
+    def sort_by_name(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        students = self.student_service.sort_students("name")
+
+        for student in students:
+            self.tree.insert("", tk.END, values=student)
+
+        self.lbl_total.config(text=f"👥   Sorted by Name: {len(students)} students")

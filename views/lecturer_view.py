@@ -54,6 +54,8 @@ class LecturerView(BaseView):
         make_button(button_frame, "+   Add", self.add_lecturer, COLORS["success"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "✎   Update", self.update_lecturer, COLORS["info"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "🗑   Delete", self.delete_lecturer, COLORS["danger"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "↕   Sort ID", self.sort_by_id, COLORS["primary"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "A-Z Sort Name", self.sort_by_name, COLORS["primary"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "↻   Clear", self.clear_form, COLORS["gray"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
 
         # --- Khối hiển thị danh sách giảng viên (List Card) ---
@@ -228,3 +230,25 @@ class LecturerView(BaseView):
                 entry.delete(0, tk.END)
                 entry.insert(0, value)
                 entry.config(fg=COLORS["text"])
+    def sort_by_id(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        lecturers = self.lecturer_service.sort_lecturers("id")
+
+        for lecturer in lecturers:
+            self.tree.insert("", tk.END, values=lecturer)
+
+        self.lbl_total.config(text=f"👥   Sorted by Lecturer ID: {len(lecturers)} lecturers")
+
+
+    def sort_by_name(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        lecturers = self.lecturer_service.sort_lecturers("name")
+
+        for lecturer in lecturers:
+            self.tree.insert("", tk.END, values=lecturer)
+
+        self.lbl_total.config(text=f"👥   Sorted by Name: {len(lecturers)} lecturers")

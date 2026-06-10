@@ -71,3 +71,17 @@ class StudentService:
         rows = cursor.fetchall()
         conn.close()
         return rows
+    def sort_students(self, sort_by):
+        conn = self.db.connect()
+        cursor = conn.cursor()
+
+        if sort_by == "id":
+            cursor.execute("SELECT * FROM students ORDER BY student_id ASC")
+        elif sort_by == "name":
+            cursor.execute("SELECT * FROM students ORDER BY name ASC")
+        else:
+            cursor.execute("SELECT * FROM students")
+
+        rows = cursor.fetchall()
+        conn.close()
+        return rows

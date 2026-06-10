@@ -92,6 +92,8 @@ class CourseView(BaseView):
 
         make_button(button_frame, "+   Add", self.add_course, COLORS["success"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "✎   Update", self.update_course, COLORS["info"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "↕   Sort ID", self.sort_by_id, COLORS["primary"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
+        make_button(button_frame, "A-Z Sort Name", self.sort_by_name, COLORS["primary"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "🗑   Delete", self.delete_course, COLORS["danger"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
         make_button(button_frame, "↻   Clear", self.clear_form, COLORS["gray"]).pack(side="left", fill="x", expand=True, padx=6, ipady=4)
 
@@ -302,3 +304,37 @@ class CourseView(BaseView):
                 entry.config(fg=COLORS["text"])
 
             self.course_type.set(values[4])
+    def sort_by_id(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        courses = self.course_service.sort_courses("id")
+
+        for course in courses:
+            self.tree.insert("", tk.END, values=course)
+
+        self.lbl_total.config(text=f"📚   Sorted by Course ID: {len(courses)} courses")
+
+
+    def sort_by_name(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        courses = self.course_service.sort_courses("name")
+
+        for course in courses:
+            self.tree.insert("", tk.END, values=course)
+
+        self.lbl_total.config(text=f"📚   Sorted by Course Name: {len(courses)} courses")
+
+
+    def sort_by_credits(self):
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        courses = self.course_service.sort_courses("credits")
+
+        for course in courses:
+            self.tree.insert("", tk.END, values=course)
+
+        self.lbl_total.config(text=f"📚   Sorted by Credits: {len(courses)} courses")

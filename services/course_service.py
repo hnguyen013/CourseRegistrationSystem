@@ -76,3 +76,19 @@ class CourseService:
 
         conn.commit()
         conn.close()
+    def sort_courses(self, sort_by):
+        conn = self.db.connect()
+        cursor = conn.cursor()
+
+        if sort_by == "id":
+            cursor.execute("SELECT * FROM courses ORDER BY course_id ASC")
+        elif sort_by == "name":
+            cursor.execute("SELECT * FROM courses ORDER BY course_name ASC")
+        elif sort_by == "credits":
+            cursor.execute("SELECT * FROM courses ORDER BY credits ASC")
+        else:
+            cursor.execute("SELECT * FROM courses")
+
+        rows = cursor.fetchall()
+        conn.close()
+        return rows

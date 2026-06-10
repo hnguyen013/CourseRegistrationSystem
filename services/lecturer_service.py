@@ -74,3 +74,17 @@ class LecturerService:
 
         conn.commit()
         conn.close()
+    def sort_lecturers(self, sort_by):
+        conn = self.db.connect()
+        cursor = conn.cursor()
+
+        if sort_by == "id":
+            cursor.execute("SELECT * FROM lecturers ORDER BY lecturer_id ASC")
+        elif sort_by == "name":
+            cursor.execute("SELECT * FROM lecturers ORDER BY name ASC")
+        else:
+            cursor.execute("SELECT * FROM lecturers")
+
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
