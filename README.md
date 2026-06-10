@@ -269,7 +269,7 @@ Dựa trên tiêu chí chấm điểm của đề bài, chương trình được
 | 12  | Advanced Technology        | 0.5         | 0.5     | Sử dụng giao diện GUI Tkinter kết hợp cơ sở dữ liệu SQLite.                                                                                                                         |
 | 13  | Git & GitHub Management    | 0.5         | 0.5     | Dự án được quản lý bằng Git và lưu trữ trên GitHub với lịch sử commit rõ ràng.                                                                                                      |
 
-|  | **TỔNG CỘNG** | **10.0** | **9.8** |  |
+ **TỔNG CỘNG: 10/10**
 
 
 ## 9. Kết quả đạt được
