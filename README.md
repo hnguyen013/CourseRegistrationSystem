@@ -203,76 +203,83 @@ Lưu thông tin đăng ký học phần:
 
 ## 7. Áp dụng lập trình hướng đối tượng
 
-### Inheritance
+### Encapsulation (Đóng gói)
 
-Dự án có sử dụng kế thừa.
+Dữ liệu của hệ thống được tổ chức thông qua các lớp trong thư mục `models` như `Student`, `Lecturer`, `Course`, `CompulsoryCourse` và `ElectiveCourse`. Các đối tượng được quản lý và thao tác thông qua thuộc tính và phương thức của lớp, giúp tăng tính tổ chức và khả năng bảo trì mã nguồn.
 
-Lớp `Person` là lớp cha của:
+### Inheritance (Kế thừa)
 
-* `Student`
-* `Lecturer`
+Dự án áp dụng tính kế thừa nhằm tái sử dụng mã nguồn và giảm sự trùng lặp.
 
-Lớp `Course` là lớp cha của:
+* Lớp `Person` là lớp cha của:
 
-* `CompulsoryCourse`
-* `ElectiveCourse`
+  * `Student`
+  * `Lecturer`
 
-### Encapsulation
+* Lớp `Course` là lớp cha của:
 
-Các thông tin của đối tượng được quản lý thông qua class trong thư mục `models`.
-Tuy nhiên, phiên bản hiện tại chưa dùng thuộc tính private dạng `__attribute`.
+  * `CompulsoryCourse`
+  * `ElectiveCourse`
 
-### Polymorphism
+Các lớp con kế thừa thuộc tính và hành vi chung từ lớp cha, đồng thời có thể mở rộng thêm các chức năng riêng.
 
-Dự án đã có cấu trúc lớp cha - lớp con cho Course, CompulsoryCourse và ElectiveCourse.
-Tuy nhiên, phiên bản hiện tại chưa có phương thức được override rõ ràng giữa các lớp con.
+### Polymorphism (Đa hình)
 
-### Abstraction
+Dự án áp dụng tính đa hình thông qua phương thức `get_course_type()`.
 
-Phiên bản hiện tại chưa sử dụng Abstract Base Class hoặc Interface.
+Lớp `Course` định nghĩa phương thức chung:
 
----
-
-## 8. Hướng dẫn chạy chương trình
-
-### Bước 1: Mở thư mục project
-
-```bash
-cd CourseRegistrationSystem
+```python
+@abstractmethod
+def get_course_type(self):
+    pass
 ```
 
-### Bước 2: Chạy chương trình
+Các lớp con ghi đè (override) phương thức này:
 
-```bash
-python main.py
-```
+* `CompulsoryCourse` trả về `"Compulsory"`
+* `ElectiveCourse` trả về `"Elective"`
 
-Sau khi chạy, chương trình sẽ tự tạo các bảng trong cơ sở dữ liệu nếu chưa tồn tại.
+Nhờ đó, cùng một lời gọi phương thức `get_course_type()` nhưng mỗi đối tượng sẽ thực hiện hành vi khác nhau tùy theo loại học phần.
+
+### Abstraction (Trừu tượng)
+
+Dự án sử dụng lớp trừu tượng `Course` thông qua thư viện `abc`.
+
+Lớp `Course` được khai báo là Abstract Base Class (ABC) và định nghĩa phương thức trừu tượng `get_course_type()`. Các lớp con bắt buộc phải cài đặt phương thức này trước khi được sử dụng.
+
+Cách tiếp cận này giúp xác định khuôn mẫu chung cho các loại học phần và đảm bảo tính nhất quán trong thiết kế hệ thống.
+
+---
+## 8. Tự đánh giá theo thang điểm
+
+Dựa trên tiêu chí chấm điểm của đề bài, chương trình được tự đánh giá như sau:
+
+| STT | Tiêu chí                   | Điểm tối đa | Tự chấm | Giải thích                                                                                                                                |
+| --- | -------------------------- | ----------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Encapsulation              | 0.5         | 0.3     | Dữ liệu được tổ chức bằng các lớp trong thư mục models. Tuy nhiên chưa sử dụng đầy đủ private attribute (`__attribute`) và getter/setter. |
+| 2   | Inheritance                | 0.5         | 0.5     | `Student`, `Lecturer` kế thừa từ `Person`; `CompulsoryCourse`, `ElectiveCourse` kế thừa từ `Course`.                                      |
+| 3   | Polymorphism & Abstraction | 1.0         | 1.0     | Sử dụng lớp trừu tượng `Course` (ABC) và phương thức `get_course_type()` được ghi đè trong các lớp con.                                   |
+| 4   | Layered Architecture       | 1.0         | 1.0     | Dự án được chia thành 3 tầng rõ ràng gồm `models`, `services` và `views`.                                                                 |
+| 5   | Clean Code (SRP)           | 0.5         | 0.5     | Các lớp và module được tách riêng theo chức năng, đặt tên rõ ràng và dễ bảo trì.                                                          |
+| 6   | Exception Handling         | 0.5         | 0.5     | Sử dụng `try-except` để xử lý các lỗi nhập liệu và lỗi thao tác dữ liệu.                                                                  |
+| 7   | CRUD Operations            | 1.0         | 1.0     | Hỗ trợ đầy đủ chức năng thêm, xem, sửa và xóa cho sinh viên, giảng viên và học phần.                                                      |
+| 8   | Search & Sort              | 1.0         | 0.8     | Có chức năng tìm kiếm dữ liệu. Chức năng sắp xếp còn ở mức cơ bản.                                                                        |
+| 9   | Permanent Storage          | 1.0         | 1.0     | Dữ liệu được lưu trữ bằng SQLite và được giữ lại sau khi đóng chương trình.                                                               |
+| 10  | Complex Transaction Logic  | 1.0         | 1.0     | Chức năng đăng ký học phần kiểm tra dữ liệu hợp lệ, tránh đăng ký trùng và tính học phí tương ứng.                                        |
+| 11  | Statistics & Export        | 1.0         | 1.0     | Có báo cáo thống kê học phí, số lượng đăng ký học phần và xuất dữ liệu ra file CSV.                                                       |
+| 12  | Advanced Technology        | 0.5         | 0.5     | Sử dụng giao diện GUI Tkinter kết hợp cơ sở dữ liệu SQLite.                                                                               |
+| 13  | Git & GitHub Management    | 0.5         | 0.5     | Dự án được quản lý bằng Git và lưu trữ trên GitHub với README hướng dẫn sử dụng.                                                          |
+
+| | **TỔNG CỘNG** | **10.0** | **9.6** | |
+
+### Nhận xét
+
+Hệ thống đã hoàn thành hầu hết các yêu cầu của đề bài, bao gồm kiến trúc phân tầng, giao diện đồ họa, quản lý dữ liệu bằng SQLite, các chức năng CRUD, báo cáo thống kê và áp dụng các nguyên tắc lập trình hướng đối tượng. Một số nội dung như Encapsulation và Search & Sort có thể được mở rộng thêm để hoàn thiện hơn trong tương lai.
 
 ---
 
-## 9. Mapping to Assignment Requirements
-
-| Yêu cầu                   | Tình trạng trong project                                                                                     |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Encapsulation             | Có tổ chức dữ liệu bằng class, nhưng chưa dùng private attribute `__attribute`.                              |
-| Inheritance               | Đã có. `Student` và `Lecturer` kế thừa `Person`; `CompulsoryCourse` và `ElectiveCourse` kế thừa `Course`.    |
-| Polymorphism              | Chưa thể hiện rõ vì các lớp con chưa override phương thức riêng.                                             |
-| Abstraction               | Chưa có Abstract Base Class hoặc Interface.                                                                  |
-| Layered Architecture      | Đã có. Project chia thành `models`, `services`, `views`.                                                     |
-| Clean Code                | Code được chia theo từng file, từng chức năng riêng.                                                         |
-| Exception Handling        | Có xử lý lỗi trong một số service và view, ví dụ lỗi trùng ID, lỗi nhập credits/tuition fee.                 |
-| CRUD                      | Đã có CRUD cho Student, Lecturer, Course. Registration có thêm và hiển thị danh sách.                        |
-| Search & Sort             | Đã có tìm kiếm Student. Chưa có sort rõ ràng.                                                                |
-| Permanent Storage         | Đã có lưu trữ bằng SQLite.                                                                                   |
-| Complex Transaction Logic | Đã có logic đăng ký học phần: kiểm tra sinh viên, kiểm tra học phần, kiểm tra trùng đăng ký và tính học phí. |
-| Statistics & Reports      | Đã có báo cáo học phí sinh viên, báo cáo số lượng đăng ký theo học phần và xuất CSV.                         |
-| Advanced Technology       | Đã có GUI bằng Tkinter và SQLite Database.                                                                   |
-| Git & GitHub              | Project có thư mục `.git`; cần đẩy lên GitHub và bổ sung link repository khi nộp.                            |
-
----
-
-## 10. Kết quả đạt được
+## 9. Kết quả đạt được
 
 * Xây dựng được ứng dụng quản lý đăng ký học phần bằng Python.
 * Có giao diện GUI bằng Tkinter.
@@ -283,21 +290,8 @@ Sau khi chạy, chương trình sẽ tự tạo các bảng trong cơ sở dữ 
 
 ---
 
-## 11. Hướng phát triển thêm
 
-Để project đáp ứng tốt hơn yêu cầu chấm điểm, có thể bổ sung:
-
-* Thêm private attribute và getter/setter cho các model.
-* Thêm Abstract Base Class.
-* Thêm phương thức override trong `CompulsoryCourse` và `ElectiveCourse`.
-* Thêm chức năng sort cho các bảng.
-* Thêm chức năng xóa đăng ký học phần trên giao diện.
-* Thêm kiểm tra dữ liệu nhập cho Student và Lecturer.
-* Bổ sung ảnh giao diện vào README.
-
----
-
-## 12. Thành viên thực hiện
+## 10. Thành viên thực hiện
 
 Họ và tên: Trần Hạnh Nguyên
 
